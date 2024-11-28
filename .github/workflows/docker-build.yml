@@ -1,27 +1,57 @@
-- name: Build Docker image
-  run: docker build -t myapp:${{ github.sha }} -f ./rest-service-initial/Dockerfile ./rest-service-initial
+name: Docker Build
 
-- name: Run Docker container
-  run: docker run -d -p 8080:8080 --name myapp_container myapp:${{ github.sha }}
+on:
+  push:
+    branches:
+      - main
+      - dev # or any other branch you want to monitor
+  pull_request:
+    branches:
+      - main
+      - dev
 
-- name: Wait for the service to start
-  run: |
-    for i in {1..10}; do
-      if curl --fail http://localhost:8080/actuator/health; then
-        echo "Service is up!"
-        exit 0
-      else
-        echo "Waiting for the service to start..."
-        sleep 5
-      fi
-    done
-    echo "Service did not start in time"
-    exit 1
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-- name: Test application endpoint
-  run: curl http://localhost:8080/your-endpoint
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-- name: Stop and remove Docker container
-  run: |
-    docker stop myapp_container
-    docker rm myapp_container
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build Docker image
+        run: docker build -t myapp:${{ github.sha }} -f ./rest-service-initial/Dockerfile ./rest-service-initial
+
+      - name: Run Docker container
+        run: docker run -d -p 8080:8080 --name myapp_container myapp:${{ github.sha }}
+
+      - name: Wait for the service to start
+        run: |
+          for i in {1..10}; do
+            if curl --fail http://localhost:8080/actuator/health; then
+              echo "Service is up!"
+              exit 0
+            else
+              echo "Waiting for the service to start..."
+              sleep 5
+            fi
+          done
+          echo "Service did not start in time"
+          exit 1
+
+      - name: Test application endpoint
+        run: curl http://localhost:8080/your-endpoint
+
+      - name: Stop and remove Docker container
+        run: |
+          docker stop myapp_container
+          docker rm myapp_container
