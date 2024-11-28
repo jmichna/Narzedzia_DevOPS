@@ -29,7 +29,8 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Build Docker image
-        run: docker build -t myapp:${{ github.sha }} -f ./rest-service-initial/Dockerfile ./rest-service-initial
+        working-directory: ./rest-service-initial
+        run: docker build -t myapp:${{ github.sha }} .
 
       - name: Verify Docker image
         run: |
