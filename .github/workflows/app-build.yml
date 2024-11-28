@@ -33,6 +33,8 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean install -DskipTests
+        working-directory: ./initial
 
       - name: Run tests
         run: mvn test
+        working-directory: ./initial
