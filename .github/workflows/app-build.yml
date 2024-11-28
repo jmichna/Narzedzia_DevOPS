@@ -1,4 +1,4 @@
-name: Application Build
+name: Java Build with Maven
 
 on:
   push:
@@ -17,19 +17,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up .NET (or other required environment)
-        uses: actions/setup-dotnet@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
         with:
-          dotnet-version: "6.0" # Adjust version as needed
+          java-version: "17"
+          distribution: "adoptopenjdk"
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build application
-        run: dotnet build --configuration Release
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
 
       - name: Run tests
-        run: dotnet test --configuration Release
-
-      - name: Publish application (if needed)
-        run: dotnet publish --configuration Release --output ./publish
+        run: mvn test
