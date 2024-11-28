@@ -33,4 +33,4 @@ jobs:
 
       - name: Verify Docker image
         run: |
-          docker run --rm myapp:${{ github.sha }} --version
+          docker run --rm myapp:${{ github.sha }} java -version
