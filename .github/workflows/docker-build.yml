@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t myapp:${{ github.sha }} -f inital/Dockerfile .
+          docker build -t myapp:${{ github.sha }} -f initial/Dockerfile .
 
       - name: Verify Docker image
         run: |
