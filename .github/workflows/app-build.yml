@@ -1,0 +1,35 @@
+name: Application Build
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET (or other required environment)
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "6.0" # Adjust version as needed
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build application
+        run: dotnet build --configuration Release
+
+      - name: Run tests
+        run: dotnet test --configuration Release
+
+      - name: Publish application (if needed)
+        run: dotnet publish --configuration Release --output ./publish
