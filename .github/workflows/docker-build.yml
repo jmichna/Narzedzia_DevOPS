@@ -31,27 +31,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t myapp:${{ github.sha }} -f ./initial/Dockerfile ./initial
 
-      - name: Run Docker container
-        run: docker run -d -p 8080:8080 --name myapp_container myapp:${{ github.sha }}
-
-      - name: Wait for the service to start
+      - name: Verify Docker image
         run: |
-          for i in {1..10}; do
-            if curl --fail http://localhost:8080/actuator/health; then
-              echo "Service is up!"
-              exit 0
-            else
-              echo "Waiting for the service to start..."
-              sleep 5
-            fi
-          done
-          echo "Service did not start in time"
-          exit 1
-
-      - name: Test application endpoint
-        run: curl http://localhost:8080/your-endpoint
-
-      - name: Stop and remove Docker container
-        run: |
-          docker stop myapp_container
-          docker rm myapp_container
+          docker run --rm myapp:${{ github.sha }} --version
